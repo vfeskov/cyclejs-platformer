@@ -1,4 +1,6 @@
-import { WORLD_BORDER, WORLD_HEIGHT, WORLD_WIDTH, DUDE_HEIGHT, DUDE_WIDTH } from './constants'
+import { WORLD_HEIGHT, WORLD_WIDTH, DUDE_HEIGHT, DUDE_WIDTH } from './model'
+
+export const WORLD_BORDER = 0.5
 
 export const WORLD_STYLE = {
   border: `${WORLD_BORDER}vmin solid black`,

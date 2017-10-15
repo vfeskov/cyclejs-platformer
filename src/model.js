@@ -1,7 +1,14 @@
-import { WORLD_WIDTH, WORLD_HEIGHT, DUDE_WIDTH, DUDE_HEIGHT, UP, DOWN, LEFT, RIGHT, REQUESTED } from './constants'
+import { UP, DOWN, LEFT, RIGHT } from './intent'
 const { min, max } = Math
+const { assign } = Object
 
-export const DUDE = { x: 0, y: 0, velocityX: 0, velocityY: 0, gravity: 0.01 }
+export const WORLD_WIDTH = 88,
+             WORLD_HEIGHT = 88
+
+export const DUDE_HEIGHT = 4,
+             DUDE_WIDTH = 2
+
+export const DUDE = { x: 49, y: 0, velocityX: 0, velocityY: 0, gravity: 0.04 }
 export const PLATFORMS = [
   { x: 50, y: 10, width: 20, height: 2 },
   { x: 30, y: 15, width: 15, height: 2 },
@@ -15,26 +22,33 @@ export const PLATFORMS = [
 ]
 
 export function model(action$) {
-  const maxX = WORLD_WIDTH - DUDE_WIDTH
-  const maxY = WORLD_HEIGHT - DUDE_HEIGHT
-
   return action$
     .fold(({dude, platforms}, actions) => {
-      dude = Object.assign({}, dude)
-
-      dude.velocityX = 0
-      if (actions[LEFT] === REQUESTED) { dude.velocityX -= 0.5 }
-      if (actions[RIGHT] === REQUESTED) { dude.velocityX += 0.5 }
-      dude.x = min(maxX, max(0, dude.x + dude.velocityX))
-
-      const platform = getPlatformBelow(dude, platforms)
-      if (actions[UP] === REQUESTED && isStanding(dude, platform)) { dude.velocityY = 0.5 }
-      const minY = (platform && actions[DOWN] !== REQUESTED) ? platform.y + platform.height : 0
-      dude.y = min(maxY, max(minY, dude.y + dude.velocityY))
-      dude.velocityY = dude.y === minY ? 0 : dude.velocityY - dude.gravity
-      if (dude.y === maxY && dude.velocityY > 0) { dude.velocityY = 0 }
+      dude = updateX(dude, actions)
+      dude = updateY(dude, platforms, actions)
       return { dude, platforms }
     }, { dude: DUDE, platforms: PLATFORMS })
+}
+
+export function updateX(dude, actions) {
+  let velocityX = 0
+  if (actions[LEFT]) { velocityX -= 1 }
+  if (actions[RIGHT]) { velocityX += 1 }
+  const maxX = WORLD_WIDTH - DUDE_WIDTH
+  const x = min(maxX, max(0, dude.x + velocityX))
+  return assign({}, dude, { x, velocityX })
+}
+
+export function updateY(dude, platforms, actions) {
+  let { y, velocityY, gravity } = dude
+  const platform = getPlatformBelow(dude, platforms)
+  if (actions[UP] && isStanding(dude, platform)) { velocityY = 1 }
+  const minY = (platform && !actions[DOWN]) ? platform.y + platform.height : 0
+  const maxY = WORLD_HEIGHT - DUDE_HEIGHT
+  y = min(maxY, max(minY, y + velocityY))
+  velocityY = y === minY ? 0 : velocityY - gravity // set velocityY to 0 when standing
+  if (y === maxY && velocityY > 0) { velocityY = 0 } // when we bump against the ceiling
+  return assign({}, dude, { y, velocityY })
 }
 
 export function isStanding(dude, platformBelow) {
@@ -43,11 +57,13 @@ export function isStanding(dude, platformBelow) {
 }
 
 export function getPlatformBelow(dude, platforms) {
-  return platforms.filter(platform =>
-    dude.y >= platform.y + platform.height &&
-    dude.x + DUDE_WIDTH >= platform.x && dude.x <= platform.x + platform.width
-  ).reduce((closestPlatform, platform) => {
-    if (!closestPlatform) { return platform }
-    return platform.y > closestPlatform.y ? platform : closestPlatform
-  }, null)
+  return platforms
+    .filter(platform =>
+      dude.y >= platform.y + platform.height &&
+      dude.x + DUDE_WIDTH >= platform.x && dude.x <= platform.x + platform.width
+    )
+    .reduce((closest, platform) => {
+      if (!closest) { return platform }
+      return platform.y > closest.y ? platform : closest
+    }, null)
 }
