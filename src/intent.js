@@ -18,7 +18,7 @@ export const KEY_2_DIRECTION_MAP = {
   65: LEFT    // a
 }
 
-export function intent({ DOM, Time }) {
+export function intent ({ DOM, Time }) {
   return xs.merge(
       DOM.select('body').events('keydown'),
       DOM.select('body').events('keyup')

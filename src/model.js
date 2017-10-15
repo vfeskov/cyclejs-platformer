@@ -21,7 +21,7 @@ export const PLATFORMS = [
   { x: 40, y: 80, width: 20, height: 2 },
 ]
 
-export function model(action$) {
+export function model (action$) {
   return action$
     .fold(({dude, platforms}, actions) => {
       dude = updateX(dude, actions)
@@ -30,7 +30,7 @@ export function model(action$) {
     }, { dude: DUDE, platforms: PLATFORMS })
 }
 
-export function updateX(dude, actions) {
+export function updateX (dude, actions) {
   let velocityX = 0
   if (actions[LEFT]) { velocityX -= 1 }
   if (actions[RIGHT]) { velocityX += 1 }
@@ -39,7 +39,7 @@ export function updateX(dude, actions) {
   return assign({}, dude, { x, velocityX })
 }
 
-export function updateY(dude, platforms, actions) {
+export function updateY (dude, platforms, actions) {
   let { y, velocityY, gravity } = dude
   const platform = getPlatformBelow(dude, platforms)
   if (actions[UP] && isStanding(dude, platform)) { velocityY = 1 }
@@ -51,12 +51,12 @@ export function updateY(dude, platforms, actions) {
   return assign({}, dude, { y, velocityY })
 }
 
-export function isStanding(dude, platformBelow) {
+export function isStanding (dude, platformBelow) {
   if (dude.y === 0 ) { return true }
   return platformBelow && dude.y === platformBelow.y + platformBelow.height
 }
 
-export function getPlatformBelow(dude, platforms) {
+export function getPlatformBelow (dude, platforms) {
   return platforms
     .filter(platform =>
       dude.y >= platform.y + platform.height &&

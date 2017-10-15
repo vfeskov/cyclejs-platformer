@@ -19,7 +19,7 @@ export const BASE_DUDE_STYLE = {
   width: `${DUDE_WIDTH}vmin`
 }
 
-export function dudeElement({x, y}) {
+export function dudeElement ({x, y}) {
   const dudeStyle = Object.assign({ bottom: `${y}vmin`, left: `${x}vmin` }, BASE_DUDE_STYLE)
   return <dude style={dudeStyle}></dude>
 }
@@ -30,7 +30,7 @@ export const BASE_PLATFORM_STYLE = {
   position: 'absolute'
 }
 
-export function platformElement({x, y, width, height}) {
+export function platformElement ({x, y, width, height}) {
   const platformStyle = Object.assign({
     bottom: `${y}vmin`,
     height: `${height}vmin`,
@@ -40,7 +40,7 @@ export function platformElement({x, y, width, height}) {
   return <platform style={platformStyle}></platform>
 }
 
-export function view(state$, Time) {
+export function view (state$, Time) {
   return state$
     .compose(Time.throttleAnimation)
     .map(({ dude, platforms }) =>

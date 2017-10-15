@@ -30,7 +30,9 @@ describe('Intent', () => {
       }
     })
 
-    const actual$ = intent({ DOM, Time }).map(actions => actions.join(''))
+    const actual$ = intent({ DOM, Time }).map(actions =>
+      [UP, RIGHT, DOWN, LEFT].map(d => actions[d]).join('')
+    )
 
     Time.assertEqual(actual$, expected$)
 
