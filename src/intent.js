@@ -37,7 +37,6 @@ export function intent({ DOM, Time }) {
     .compose(dropRepeats((actions, oldActions) => actions.join() === oldActions.join()))
     .map(actions => Time.periodic(20).mapTo(actions).startWith(actions))
     .flatten()
-    .filter(actions => actions.some(isRequested => isRequested))
 }
 
 

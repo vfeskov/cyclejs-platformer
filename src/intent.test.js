@@ -14,7 +14,8 @@ describe('Intent', () => {
     })
     const keydown$  = Time.diagram('-◁-◁-△---▷----▽-▽-', keyEventMap('keydown'))
     const keyup$    = Time.diagram('-------◁----▷△---▽', keyEventMap('keyup'))
-    const expected$ = Time.diagram('-◁◁◁◁◸◸△△◹◹◹△-▽▽▽-', {
+    const expected$ = Time.diagram('∅◁◁◁◁◸◸△△◹◹◹△∅▽▽▽∅', {
+      '∅': '0000',
       '◁': '0001',
       '◸': '1001',
       '△': '1000',
