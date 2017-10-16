@@ -1,3 +1,4 @@
+import xs from 'xstream'
 import { intent } from './intent'
 import { model } from './model'
 import { view } from './view'
@@ -8,8 +9,7 @@ export function App (sources) {
   const vtree$ = view(state$, sources.Time)
 
   const sinks = {
-    DOM: vtree$
+    Canvas: vtree$
   }
   return sinks
 }
-

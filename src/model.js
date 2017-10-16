@@ -2,23 +2,23 @@ import { UP, DOWN, LEFT, RIGHT } from './intent'
 const { min, max } = Math
 const { assign } = Object
 
-export const WORLD_WIDTH = 88,
-             WORLD_HEIGHT = 88
+export const WORLD_WIDTH = 1000,
+             WORLD_HEIGHT = 1000
 
-export const DUDE_HEIGHT = 4,
-             DUDE_WIDTH = 2
+export const DUDE_HEIGHT = 40,
+             DUDE_WIDTH = 20
 
-export const DUDE = { x: 49, y: 0, velocityX: 0, velocityY: 0, gravity: 0.04 }
+export const DUDE = { x: 490, y: 0, velocityX: 0, velocityY: 0, gravity: 0.4 }
 export const PLATFORMS = [
-  { x: 50, y: 10, width: 20, height: 2 },
-  { x: 30, y: 15, width: 15, height: 2 },
-  { x: 20, y: 25, width: 10, height: 2 },
-  { x: 40, y: 30, width: 20, height: 2 },
-  { x: 40, y: 40, width: 20, height: 2 },
-  { x: 40, y: 50, width: 20, height: 2 },
-  { x: 40, y: 60, width: 20, height: 2 },
-  { x: 40, y: 70, width: 20, height: 2 },
-  { x: 40, y: 80, width: 20, height: 2 },
+  { x: 500, y: 100, width: 200, height: 20 },
+  { x: 300, y: 150, width: 150, height: 20 },
+  { x: 200, y: 250, width: 100, height: 20 },
+  { x: 400, y: 300, width: 200, height: 20 },
+  { x: 400, y: 400, width: 200, height: 20 },
+  { x: 400, y: 500, width: 200, height: 20 },
+  { x: 400, y: 600, width: 200, height: 20 },
+  { x: 400, y: 700, width: 200, height: 20 },
+  { x: 400, y: 800, width: 200, height: 20 },
 ]
 
 export function model (action$) {
@@ -32,8 +32,8 @@ export function model (action$) {
 
 export function updateX (dude, actions) {
   let velocityX = 0
-  if (actions[LEFT]) { velocityX -= 1 }
-  if (actions[RIGHT]) { velocityX += 1 }
+  if (actions[LEFT]) { velocityX -= 5 }
+  if (actions[RIGHT]) { velocityX += 5 }
   const maxX = WORLD_WIDTH - DUDE_WIDTH
   const x = min(maxX, max(0, dude.x + velocityX))
   return assign({}, dude, { x, velocityX })
@@ -42,7 +42,7 @@ export function updateX (dude, actions) {
 export function updateY (dude, platforms, actions) {
   let { y, velocityY, gravity } = dude
   const platform = getPlatformBelow(dude, platforms)
-  if (actions[UP] && isStanding(dude, platform)) { velocityY = 1 }
+  if (actions[UP] && isStanding(dude, platform)) { velocityY = 10 }
   const minY = (platform && !actions[DOWN]) ? platform.y + platform.height : 0
   const maxY = WORLD_HEIGHT - DUDE_HEIGHT
   y = min(maxY, max(minY, y + velocityY))
