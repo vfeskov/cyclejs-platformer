@@ -1,13 +1,5 @@
 import xs from 'xstream'
 import { adapt } from '@cycle/run/lib/adapt'
-import fromEvent from 'xstream/extra/fromEvent';
-
-function windowSize () {
-  return {
-    width: window.innerWidth,
-    height: window.innerHeight
-  }
-}
 
 export function makeElementStyleDriver (selector) {
   const element = document.querySelector(selector)
