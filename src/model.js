@@ -23,6 +23,7 @@ export const PLATFORMS = [
 
 export function model (action$) {
   return action$
+    .map(actions => actions.split('').map(action => action === '1'))
     .fold(({dude, platforms}, actions) => {
       dude = updateX(dude, actions)
       dude = updateY(dude, platforms, actions)

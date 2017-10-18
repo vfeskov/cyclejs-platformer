@@ -1,0 +1,36 @@
+html {
+  height: 80%;
+}
+
+body {
+  background: #222;
+  display: flex;
+  height: 100%;
+  margin: 0;
+}
+
+canvas {
+  background: black;
+  display: block;
+  height: 80vmin;
+  width: 80vmin;
+}
+
+controls {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  height: 100%;
+}
+
+@media (orientation: portrait) {
+  body {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  controls {
+    width: 100%;
+  }
+}

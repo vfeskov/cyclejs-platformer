@@ -8,7 +8,7 @@ import { WORLD_HEIGHT, WORLD_WIDTH } from './model'
 const main = App
 
 const drivers = {
-  DOM: makeDOMDriver('#root'),
+  DOM: makeDOMDriver('controls'),
   Canvas: makeCanvasDriver('canvas', { width: WORLD_WIDTH, height: WORLD_HEIGHT }),
   Time: timeDriver
 }
