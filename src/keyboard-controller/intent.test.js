@@ -3,7 +3,7 @@ import { mockTimeSource } from '@cycle/time'
 import { intent, UP, RIGHT, DOWN, LEFT, REQUESTED } from './intent'
 
 describe('Intent', () => {
-  it('emits requested actions every 20ms', done => {
+  it('emits requested actions when corresponding keys are pressed', done => {
     const Time = mockTimeSource()
 
     const keyEventMap = type => ({
@@ -14,7 +14,7 @@ describe('Intent', () => {
     })
     const keydown$  = Time.diagram('-◁-◁-△---▷----▽-▽-', keyEventMap('keydown'))
     const keyup$    = Time.diagram('-------◁----▷△---▽', keyEventMap('keyup'))
-    const expected$ = Time.diagram('∅◁◁◁◁◸◸△△◹◹◹△∅▽▽▽∅', {
+    const expected$ = Time.diagram('∅◁-◁-◸-△-◹--△∅▽-▽∅', {
       '∅': '0000',
       '◁': '0001',
       '◸': '1001',
@@ -30,9 +30,7 @@ describe('Intent', () => {
       }
     })
 
-    const actual$ = intent({ DOM, Time }).map(actions =>
-      [UP, RIGHT, DOWN, LEFT].map(d => actions[d]).join('')
-    )
+    const actual$ = intent({ DOM, Time })
 
     Time.assertEqual(actual$, expected$)
 

@@ -1,6 +1,10 @@
-import { UP, DOWN, LEFT, RIGHT } from './intent'
 const { min, max } = Math
 const { assign } = Object
+
+export const UP = 0,
+             RIGHT = 1,
+             DOWN = 2,
+             LEFT = 3
 
 export const WORLD_WIDTH = 1000,
              WORLD_HEIGHT = 1000
@@ -21,8 +25,8 @@ export const PLATFORMS = [
   { x: 400, y: 800, width: 200, height: 20 },
 ]
 
-export function model (action$) {
-  return action$
+export function model (actions$) {
+  return actions$
     .map(actions => actions.split('').map(action => action === '1'))
     .fold(({dude, platforms}, actions) => {
       dude = updateX(dude, actions)

@@ -3,7 +3,7 @@ import { makeDOMDriver } from '@cycle/dom'
 import { makeCanvasDriver } from 'cycle-canvas'
 import { timeDriver } from '@cycle/time'
 import { App } from './app'
-import { WORLD_HEIGHT, WORLD_WIDTH } from './model'
+import { WORLD_HEIGHT, WORLD_WIDTH } from './playground/model'
 
 const main = App
 

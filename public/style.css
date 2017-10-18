@@ -1,5 +1,6 @@
 html {
-  height: 80%;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -12,8 +13,7 @@ body {
 canvas {
   background: black;
   display: block;
-  height: 80vmin;
-  width: 80vmin;
+  height: 100%;
 }
 
 controls {
@@ -28,6 +28,11 @@ controls {
   body {
     flex-direction: column;
     align-items: center;
+  }
+
+  canvas {
+    height: auto;
+    width: 100%;
   }
 
   controls {

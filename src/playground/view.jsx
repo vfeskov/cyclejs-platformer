@@ -2,7 +2,7 @@ import { WORLD_HEIGHT, WORLD_WIDTH, DUDE_HEIGHT, DUDE_WIDTH } from './model'
 import { rect } from 'cycle-canvas'
 const { round } = Math
 
-export function view (state$, Time) {
+export function view (state$, { Time }) {
   return state$
     .compose(Time.throttleAnimation)
     .map(({ dude, platforms }) => rect({
