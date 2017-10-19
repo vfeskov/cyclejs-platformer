@@ -4,7 +4,6 @@ import { makeCanvasDriver } from 'cycle-canvas'
 import { timeDriver } from '@cycle/time'
 import { App } from './app'
 import { WORLD_HEIGHT, WORLD_WIDTH } from './playground/model'
-import { makeElementStyleDriver } from './drivers/element-style'
 import { clientDriver } from './drivers/client'
 
 const main = App
