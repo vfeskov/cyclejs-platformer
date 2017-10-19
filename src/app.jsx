@@ -15,13 +15,14 @@ export function App ({ DOM, Time, Client }) {
 
   const sinks = {
     DOM: vdom$,
-    Canvas: vcanvas$
+    Canvas: vcanvas$,
+    preventDefault: touchEvents(DOM)
   }
 
   return sinks
 }
 
-function mergeControllers(controllers) {
+function mergeControllers (controllers) {
   const request = controllers.filter(c => c.request).map(c => c.request)
   const DOM = controllers.filter(c => c.DOM).map(c => c.DOM)
   return {
@@ -30,4 +31,10 @@ function mergeControllers(controllers) {
       xs.combine(...DOM).map((...elements) => <div>{elements}</div>) :
       xs.empty()
   }
+}
+
+function touchEvents (DOM) {
+  const events = ['touchstart', 'touchmove', 'touchend']
+    .map(e => DOM.select('body').events(e))
+  return xs.merge(...events)
 }

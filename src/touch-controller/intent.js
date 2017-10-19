@@ -12,29 +12,27 @@ export const TOUCH_SECTOR_ACTIONS_MAP = [
 ]
 
 export function intent ({ DOM }) {
-  return xs.merge(
-    DOM.select('svg').events('touchstart', { preventDefault: true }),
-    DOM.select('svg').events('touchmove', { preventDefault: true }),
-    DOM.select('svg').events('touchend', { preventDefault: true })
-  )
-  .map(({ type, currentTarget, targetTouches, view }) =>
-    type === 'touchend' ? '0000' : TOUCH_SECTOR_ACTIONS_MAP
-      .filter(([start, end], index) => {
-        const point = [
-          targetTouches[0].clientX,
-          view.innerHeight - targetTouches[0].clientY
-        ]
-        window.ev = currentTarget
-        const targetRect = currentTarget.getBoundingClientRect();
-        const center = [
-          targetRect.x + targetRect.width / 2,
-          view.innerHeight - targetRect.y - targetRect.height / 2
-        ]
-        return isInsideSector(point, center, start, end, 40 / 200 * targetRect.width)
-      })
-      .reduce((match, sector) => sector[2], '0000')
-  )
-  .startWith('0000')
+  const events = ['touchstart', 'touchmove', 'touchend']
+    .map(e => DOM.select('svg').events(e))
+  return xs.merge(...events)
+    .map(({ type, currentTarget, targetTouches, view }) =>
+      type === 'touchend' ? '0000' : TOUCH_SECTOR_ACTIONS_MAP
+        .filter(([start, end], index) => {
+          const point = [
+            targetTouches[0].clientX,
+            view.innerHeight - targetTouches[0].clientY
+          ]
+          window.ev = currentTarget
+          const targetRect = currentTarget.getBoundingClientRect();
+          const center = [
+            targetRect.x + targetRect.width / 2,
+            view.innerHeight - targetRect.y - targetRect.height / 2
+          ]
+          return isInsideSector(point, center, start, end, 40 / 200 * targetRect.width)
+        })
+        .reduce((match, sector) => sector[2], '0000')
+    )
+    .startWith('0000')
 }
 
 function areClockwise (v1, v2) {

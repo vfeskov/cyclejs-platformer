@@ -1,10 +1,13 @@
 import fromEvent from 'xstream/extra/fromEvent';
+import { adapt } from '@cycle/run/lib/adapt'
 
 export function clientDriver () {
   return {
-    resize$: fromEvent(window, 'resize')
-      .map(windowSize)
-      .startWith(windowSize()),
+    resize$: adapt(
+      fromEvent(window, 'resize')
+        .map(windowSize)
+        .startWith(windowSize())
+    ),
     touchSupport: touchSupport()
   }
 }
