@@ -3,19 +3,31 @@ import { TouchController } from './touch-controller'
 import { KeyboardController } from './keyboard-controller'
 import { Playground } from './playground'
 
-export function App ({ DOM, Time }) {
-  const keyboardController = KeyboardController({ DOM })
-  const touchController = TouchController({ DOM })
-  const request = xs.merge(
-    touchController.request,
-    keyboardController.request
-  )
-  const playground = Playground({ request, Time })
+export function App ({ DOM, Time, Client }) {
+  const controllers = [
+    KeyboardController({ DOM }),
+    Client.touchSupport && TouchController({ DOM })
+  ].filter(c => c)
+
+  const { request, DOM: vdom$ } = mergeControllers(controllers)
+
+  const { Canvas: vcanvas$ } = Playground({ request, Time })
 
   const sinks = {
-    DOM: touchController.DOM,
-    Canvas: playground.Canvas
+    DOM: vdom$,
+    Canvas: vcanvas$
   }
 
   return sinks
+}
+
+function mergeControllers(controllers) {
+  const request = controllers.filter(c => c.request).map(c => c.request)
+  const DOM = controllers.filter(c => c.DOM).map(c => c.DOM)
+  return {
+    request: request.length ? xs.merge(...request) : xs.empty(),
+    DOM: DOM.length ?
+      xs.combine(...DOM).map((...elements) => <div>{elements}</div>) :
+      xs.empty()
+  }
 }

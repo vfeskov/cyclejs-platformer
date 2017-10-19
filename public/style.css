@@ -14,14 +14,19 @@ canvas {
   background: black;
   display: block;
   height: 100%;
+  margin: 0 auto;
 }
 
-controls {
+#root {
   align-items: center;
   display: flex;
   flex: 1;
   justify-content: center;
-  height: 100%;
+  overflow: hidden;
+}
+
+#root:empty {
+  display: none;
 }
 
 @media (orientation: portrait) {
@@ -32,10 +37,6 @@ controls {
 
   canvas {
     height: auto;
-    width: 100%;
-  }
-
-  controls {
     width: 100%;
   }
 }
