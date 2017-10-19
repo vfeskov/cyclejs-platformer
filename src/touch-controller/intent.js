@@ -13,9 +13,9 @@ export const TOUCH_SECTOR_ACTIONS_MAP = [
 
 export function intent ({ DOM }) {
   return xs.merge(
-    DOM.select('svg').events('touchstart'),
-    DOM.select('svg').events('touchmove'),
-    DOM.select('svg').events('touchend')
+    DOM.select('svg').events('touchstart', { preventDefault: true }),
+    DOM.select('svg').events('touchmove', { preventDefault: true }),
+    DOM.select('svg').events('touchend', { preventDefault: true })
   )
   .map(({ type, currentTarget, targetTouches, view }) =>
     type === 'touchend' ? '0000' : TOUCH_SECTOR_ACTIONS_MAP
