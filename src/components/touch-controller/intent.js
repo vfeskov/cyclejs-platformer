@@ -1,6 +1,6 @@
 import xs from 'xstream'
 
-export const TOUCH_SECTOR_ACTIONS_MAP = [
+export const TOUCH_SECTOR_MOVE_MAP = [
   [[-91.46, -37.88], [-91.46,  37.89], '0001'],
   [[-91.46,  37.89], [-37.88,  91.46], '1001'],
   [[-37.88,  91.46], [37.9,    91.46], '1000'],
@@ -11,18 +11,21 @@ export const TOUCH_SECTOR_ACTIONS_MAP = [
   [[-37.89, -91.46], [-91.46, -37.88], '0011']
 ]
 
-export function intent ({ DOM }) {
+export function intent ({ DOM, Client }) {
+  if (!Client.touchSupport) {
+    return xs.empty()
+  }
+
   const events = ['touchstart', 'touchmove', 'touchend']
     .map(e => DOM.select('svg').events(e))
   return xs.merge(...events)
     .map(({ type, currentTarget, targetTouches, view }) =>
-      type === 'touchend' ? '0000' : TOUCH_SECTOR_ACTIONS_MAP
+      type === 'touchend' ? '0000' : TOUCH_SECTOR_MOVE_MAP
         .filter(([start, end], index) => {
           const point = [
             targetTouches[0].clientX,
             view.innerHeight - targetTouches[0].clientY
           ]
-          window.ev = currentTarget
           const targetRect = currentTarget.getBoundingClientRect();
           const center = [
             targetRect.x + targetRect.width / 2,
@@ -33,6 +36,7 @@ export function intent ({ DOM }) {
         .reduce((match, sector) => sector[2], '0000')
     )
     .startWith('0000')
+    .map(move => () => move)
 }
 
 function areClockwise (v1, v2) {

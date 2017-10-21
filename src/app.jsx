@@ -1,40 +1,35 @@
 import xs from 'xstream'
-import { TouchController } from './touch-controller'
-import { KeyboardController } from './keyboard-controller'
-import { Playground } from './playground'
+import isolate from '@cycle/isolate';
+import { TouchController } from './components/touch-controller'
+import { KeyboardController } from './components/keyboard-controller'
+import { Playground } from './components/playground'
+import { ScrollFixer } from './components/scroll-fixer'
 
-export function App ({ DOM, Time, Client }) {
-  const controllers = [
-    KeyboardController({ DOM }),
-    Client.touchSupport && TouchController({ DOM })
-  ].filter(c => c)
+export function App (sources) {
+  const components = [
+    isolate(KeyboardController, 'keyboard')(sources),
+    isolate(TouchController, 'touch')(sources),
+    isolate(ScrollFixer)(sources),
+    isolate(Playground, { onion: playgroundLens() })(sources)
+  ]
 
-  const { request, DOM: vdom$ } = mergeControllers(controllers)
-
-  const { Canvas: vcanvas$ } = Playground({ request, Time })
-
-  const sinks = {
-    DOM: vdom$,
-    Canvas: vcanvas$,
-    preventDefault: touchEvents(DOM)
-  }
+  const sinks = mergeSinks(components)
 
   return sinks
 }
 
-function mergeControllers (controllers) {
-  const request = controllers.filter(c => c.request).map(c => c.request)
-  const DOM = controllers.filter(c => c.DOM).map(c => c.DOM)
+function playgroundLens() {
   return {
-    request: request.length ? xs.merge(...request) : xs.empty(),
-    DOM: DOM.length ?
-      xs.combine(...DOM).map((...elements) => <div>{elements}</div>) :
-      xs.empty()
+    get: state => ({ move: mergeMoves(state), playground: state.playground }),
+    set: (state, childState) => ({ ...state, playground: childState })
+  }
+
+  function mergeMoves({ keyboard = '0000', touch = '0000' }) {
+    return (parseInt(keyboard, 2) | parseInt(touch, 2) + 16).toString(2).replace('1', '')
   }
 }
 
-function touchEvents (DOM) {
-  const events = ['touchstart', 'touchmove', 'touchend']
-    .map(e => DOM.select('body').events(e))
-  return xs.merge(...events)
+function mergeSinks(components) {
+  const onion = xs.merge(...components.filter(c => c.onion).map(c => c.onion))
+  return Object.assign({}, ...components, { onion })
 }

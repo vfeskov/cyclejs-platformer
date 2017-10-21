@@ -1,10 +1,10 @@
 import { intent } from './intent'
 
 export function KeyboardController (sources) {
-  const actions$ = intent(sources)
+  const reduce$ = intent(sources)
 
   const sinks = {
-    request: actions$
+    onion: reduce$
   }
 
   return sinks

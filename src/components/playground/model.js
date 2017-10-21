@@ -25,30 +25,33 @@ export const PLATFORMS = [
   { x: 400, y: 800, width: 200, height: 20 },
 ]
 
-export function model (actions$) {
-  return actions$
-    .map(actions => actions.split('').map(action => action === '1'))
-    .fold(({dude, platforms}, actions) => {
-      dude = updateX(dude, actions)
-      dude = updateY(dude, platforms, actions)
-      return { dude, platforms }
-    }, { dude: DUDE, platforms: PLATFORMS })
+export function model (move$) {
+  return move$
+    .map(move => move.split('').map(moveInDir => moveInDir === '1'))
+    .map(move => {
+      return (prevState = {}) => {
+        let { dude, platforms } = prevState.playground || { dude: DUDE, platforms: PLATFORMS }
+        dude = updateX(dude, move)
+        dude = updateY(dude, platforms, move)
+        return { dude, platforms }
+      }
+    })
 }
 
-export function updateX (dude, actions) {
+export function updateX (dude, move) {
   let velocityX = 0
-  if (actions[LEFT]) { velocityX -= 5 }
-  if (actions[RIGHT]) { velocityX += 5 }
+  if (move[LEFT]) { velocityX -= 5 }
+  if (move[RIGHT]) { velocityX += 5 }
   const maxX = WORLD_WIDTH - DUDE_WIDTH
   const x = min(maxX, max(0, dude.x + velocityX))
   return assign({}, dude, { x, velocityX })
 }
 
-export function updateY (dude, platforms, actions) {
+export function updateY (dude, platforms, move) {
   let { y, velocityY, gravity } = dude
   const platform = getPlatformBelow(dude, platforms)
-  if (actions[UP] && isStanding(dude, platform)) { velocityY = 10 }
-  const minY = (platform && !actions[DOWN]) ? platform.y + platform.height : 0
+  if (move[UP] && isStanding(dude, platform)) { velocityY = 10 }
+  const minY = (platform && !move[DOWN]) ? platform.y + platform.height : 0
   const maxY = WORLD_HEIGHT - DUDE_HEIGHT
   y = min(maxY, max(minY, y + velocityY))
   velocityY = y === minY ? 0 : velocityY - gravity // set velocityY to 0 when standing

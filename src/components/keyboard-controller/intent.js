@@ -28,9 +28,11 @@ export function intent ({ DOM }) {
       const direction = KEY_DIRECTION_MAP[keyCode]
       return [direction, isRequested]
     })
-    .fold((actions, [direction, isRequested]) => {
-      const newActions = actions.split('')
-      newActions[direction] = isRequested
-      return newActions.join('')
-    }, '0000')
+    .map(([direction, isRequested]) => {
+      return (prevMove = '0000') => {
+        const move = prevMove.split('')
+        move[direction] = isRequested
+        return move.join('')
+      }
+    })
 }

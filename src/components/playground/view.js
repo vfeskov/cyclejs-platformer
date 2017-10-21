@@ -5,6 +5,7 @@ const { round } = Math
 export function view (state$, { Time }) {
   return state$
     .compose(Time.throttleAnimation)
+    .map(state => state.playground)
     .map(({ dude, platforms }) => rect({
       children: [
         ...platforms.map(platform =>

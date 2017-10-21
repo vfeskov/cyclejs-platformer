@@ -3,12 +3,14 @@ import { model } from './model'
 import { view } from './view'
 
 export function Playground (sources) {
-  const actions$ = intent(sources)
-  const state$ = model(actions$)
+  const state$ = sources.onion.state$
+  const move$ = intent(sources)
+  const reduce$ = model(move$)
   const vcanvas$ = view(state$, sources)
 
   const sinks = {
-    Canvas: vcanvas$
+    Canvas: vcanvas$,
+    onion: reduce$
   }
 
   return sinks

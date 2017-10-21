@@ -2,12 +2,13 @@ import { intent } from './intent'
 import { view } from './view'
 
 export function TouchController (sources) {
-  const actions$ = intent(sources)
-  const vdom$ = view(actions$)
+  const state$ = sources.onion.state$
+  const reduce$ = intent(sources)
+  const vdom$ = view(state$)
 
   const sinks = {
     DOM: vdom$,
-    request: actions$
+    onion: reduce$
   }
 
   return sinks
