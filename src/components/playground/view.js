@@ -6,8 +6,15 @@ export function view (state$, { Time }) {
   return state$
     .compose(Time.throttleAnimation)
     .map(state => state.playground)
-    .map(({ dude, platforms }) => rect({
+    .map(({ dude, platforms, coin }) => rect({
       children: [
+        rect({
+          x: round(coin.x),
+          y: round(WORLD_WIDTH - coin.y - coin.height),
+          width: coin.width,
+          height: coin.height,
+          draw: [{ fill: 'yellow' }]
+        }),
         ...platforms.map(platform =>
           rect({
             x: round(platform.x),

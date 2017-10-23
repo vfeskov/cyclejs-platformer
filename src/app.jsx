@@ -20,7 +20,7 @@ export function App (sources) {
 
 function playgroundLens() {
   return {
-    get: state => ({ move: mergeMoves(state), playground: state.playground }),
+    get: (state = {}) => ({ move: mergeMoves(state), playground: state.playground }),
     set: (state, childState) => ({ ...state, playground: childState })
   }
 
