@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "@cycle/dom": "18.3.0",
+    "@cycle/isolate": "^3.1.0",
     "@cycle/run": "3.3.0",
     "@cycle/time": "^0.10.1",
-    "cycle-canvas": "^0.6.0",
+    "cycle-canvas": "github:vfeskov/cycle-canvas#c20a67f4b9a0b57a6ac927c0b6a3928e145b5503",
+    "cycle-onionify": "^4.0.0",
     "xstream": "11.0.0"
   },
   "scripts": {

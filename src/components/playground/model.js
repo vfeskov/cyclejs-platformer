@@ -1,3 +1,5 @@
+import xs from 'xstream'
+
 const { min, max } = Math
 const { assign } = Object
 
@@ -15,24 +17,31 @@ export const DUDE_HEIGHT = 40,
 const DUDE_MAX_X = WORLD_WIDTH - DUDE_WIDTH
 const DUDE_MAX_Y = WORLD_HEIGHT - DUDE_HEIGHT
 
-export function model (move$) {
-  return move$
-    .map(move => move.split('').map(moveInDir => moveInDir === '1'))
-    .map(move => {
-      return (prevState = {}) => {
-        const playground = prevState.playground || generatePlayground()
-        let { dude, platforms, coin, finished } = playground
+export function model ({ move$, restart$ }) {
+  return xs.merge(
+    restart$.mapTo((prevState = {}) =>
+      prevState.playground && prevState.playground.finished ?
+        generatePlayground() :
+        prevState.playground
+    ),
+    move$
+      .map(move => move.split('').map(moveInDir => moveInDir === '1'))
+      .map(move => {
+        return (prevState = {}) => {
+          const playground = prevState.playground || generatePlayground()
+          let { dude, platforms, coin, finished } = playground
 
-        if (finished) { return playground }
+          if (finished) { return playground }
 
-        const oldPlatforms = platforms
-        platforms = platforms.map(updatePlatform)
-        dude = updateDude(dude, { oldPlatforms, platforms }, move)
-        finished = dudeOverCoin(dude, coin)
+          const oldPlatforms = platforms
+          platforms = platforms.map(updatePlatform)
+          dude = updateDude(dude, { oldPlatforms, platforms }, move)
+          finished = dudeOverCoin(dude, coin)
 
-        return { dude, platforms, coin, finished }
-      }
-    })
+          return { dude, platforms, coin, finished }
+        }
+      })
+  )
 }
 
 function generatePlayground() {

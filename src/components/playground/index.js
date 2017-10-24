@@ -4,8 +4,8 @@ import { view } from './view'
 
 export function Playground (sources) {
   const state$ = sources.onion.state$
-  const move$ = intent(sources)
-  const reduce$ = model(move$)
+  const action = intent(sources)
+  const reduce$ = model(action)
   const vcanvas$ = view(state$, sources)
 
   const sinks = {

@@ -1,12 +1,12 @@
 import { WORLD_HEIGHT, WORLD_WIDTH, DUDE_HEIGHT, DUDE_WIDTH } from './model'
-import { rect } from 'cycle-canvas'
+import { rect, text } from 'cycle-canvas'
 const { round } = Math
 
-export function view (state$, { Time }) {
+export function view (state$, { Time, Client }) {
   return state$
     .compose(Time.throttleAnimation)
     .map(state => state.playground)
-    .map(({ dude, platforms, coin }) => rect({
+    .map(({ dude, platforms, coin, finished }) => rect({
       children: [
         rect({
           x: round(coin.x),
@@ -30,6 +30,16 @@ export function view (state$, { Time }) {
           width: DUDE_WIDTH,
           height: DUDE_HEIGHT,
           draw: [{ fill: 'red' }]
+        }),
+        finished && text({
+          x: 100,
+          y: 500,
+          value: `${Client.touchSupport ? 'Tap' : 'Click'} to restart`,
+          font: '100pt Arial',
+          draw: [
+            { fill: 'white' },
+            { stroke: 'black' }
+          ]
         })
       ]
     }))

@@ -6,6 +6,7 @@ import { App } from './app'
 import { WORLD_HEIGHT, WORLD_WIDTH } from './components/playground/model'
 import { clientDriver } from './drivers/client'
 import { preventDefaultDriver } from './drivers/prevent-default'
+import { consoleLogDriver } from './drivers/console-log'
 import onionify from 'cycle-onionify';
 
 const main = onionify(App)
@@ -15,7 +16,8 @@ const drivers = {
   Canvas: makeCanvasDriver('canvas', { width: WORLD_WIDTH, height: WORLD_HEIGHT }),
   Time: timeDriver,
   Client: clientDriver,
-  preventDefault: preventDefaultDriver
+  preventDefault: preventDefaultDriver,
+  consoleLog: consoleLogDriver
 }
 
 run(main, drivers)
