@@ -1,6 +1,8 @@
 import { mockDOMSource } from '@cycle/dom'
 import { mockTimeSource } from '@cycle/time'
 import { intent, UP, RIGHT, DOWN, LEFT, REQUESTED } from './intent'
+import onionify from 'cycle-onionify'
+import { run } from '@cycle/run'
 
 describe('Intent', () => {
   it('emits requested actions when corresponding keys are pressed', done => {
@@ -14,7 +16,7 @@ describe('Intent', () => {
     })
     const keydown$  = Time.diagram('-◁-◁-△---▷----▽-▽-', keyEventMap('keydown'))
     const keyup$    = Time.diagram('-------◁----▷△---▽', keyEventMap('keyup'))
-    const expected$ = Time.diagram('∅◁-◁-◸-△-◹--△∅▽-▽∅', {
+    const expected$ = Time.diagram('-◁---◸-△-◹--△∅▽--∅', {
       '∅': '0000',
       '◁': '0001',
       '◸': '1001',
@@ -23,14 +25,21 @@ describe('Intent', () => {
       '▽': '0010'
     })
 
-    const DOM = mockDOMSource({
-      body: {
-        keydown: keydown$,
-        keyup: keyup$
-      }
-    })
+    const drivers = {
+      DOM: mockDOMSource({
+        body: {
+          keydown: keydown$,
+          keyup: keyup$
+        }
+      })
+    }
 
-    const actual$ = intent({ DOM, Time })
+    const main = onionify(sources => ({
+      onion: intent(sources),
+      state$: sources.onion.state$
+    }))
+
+    const actual$ = main(drivers).state$
 
     Time.assertEqual(actual$, expected$)
 
