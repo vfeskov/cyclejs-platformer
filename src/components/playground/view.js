@@ -10,25 +10,25 @@ export function view (state$, { Time, Client }) {
       children: [
         rect({
           x: round(coin.x),
-          y: round(WORLD_WIDTH - coin.y - coin.height),
-          width: coin.width,
-          height: coin.height,
+          y: round(WORLD_WIDTH - coin.y - coin.h),
+          width: coin.w,
+          height: coin.h,
           draw: [{ fill: 'yellow' }]
         }),
         ...platforms.map(platform =>
           rect({
             x: round(platform.x),
-            y: round(WORLD_HEIGHT - platform.y - platform.height),
-            width: platform.width,
-            height: platform.height,
+            y: round(WORLD_HEIGHT - platform.y - platform.h),
+            width: platform.w,
+            height: platform.h,
             draw: [{ fill: 'white' }]
           })
         ),
         rect({
           x: round(dude.x),
-          y: round(WORLD_WIDTH - dude.y - DUDE_HEIGHT),
-          width: DUDE_WIDTH,
-          height: DUDE_HEIGHT,
+          y: round(WORLD_WIDTH - dude.y - dude.h),
+          width: dude.w,
+          height: dude.h,
           draw: [{ fill: 'red' }]
         }),
         finished && text({

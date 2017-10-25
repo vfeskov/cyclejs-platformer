@@ -11,12 +11,6 @@ export const UP = 0,
 export const WORLD_WIDTH = 1000,
              WORLD_HEIGHT = 1000
 
-export const DUDE_HEIGHT = 40,
-             DUDE_WIDTH = 20
-
-const DUDE_MAX_X = WORLD_WIDTH - DUDE_WIDTH
-const DUDE_MAX_Y = WORLD_HEIGHT - DUDE_HEIGHT
-
 export function model ({ move$, restart$ }) {
   const restartReducer$ = restart$
     .mapTo((prevState = { playground: {} }) =>
@@ -26,7 +20,9 @@ export function model ({ move$, restart$ }) {
     .map(move => move.split('').map(moveInDir => moveInDir === '1'))
     .map(move => {
       return (prevState = {}) => {
-        const playground = prevState.playground || generatePlayground()
+        if (!prevState.playground) { return generatePlayground() }
+
+        const { playground } = prevState
         let { dude, platforms, coin, finished } = playground
 
         if (finished) { return playground }
@@ -34,7 +30,7 @@ export function model ({ move$, restart$ }) {
         const oldPlatforms = platforms
         platforms = platforms.map(updatePlatform)
         dude = updateDude(dude, { oldPlatforms, platforms }, move)
-        finished = dudeOverCoin(dude, coin)
+        finished = thingsIntersect(dude, coin)
 
         return { dude, platforms, coin, finished }
       }
@@ -43,19 +39,19 @@ export function model ({ move$, restart$ }) {
 }
 
 function generatePlayground() {
-  const DUDE = { x: 120, y: 720, jumpedFromVelocityX: 0, velocityX: 0, velocityY: 0, gravity: 0.4 }
+  const DUDE = { x: 120, y: 720, w: 20, h: 40, vX: 0, vY: 0, g: 0.4 }
   const PLATFORMS = [
-    { x: 500, y: 100, width: 200, height: 20 },
-    { x: 300, y: 150, width: 150, height: 20 },
-    { x: 200, y: 250, width: 100, height: 20 },
-    { x: 400, y: 300, width: 200, height: 20 },
-    { x: 400, y: 400, width: 200, height: 20, velocityX: 2.5 },
-    { x: 400, y: 500, width: 200, height: 20 },
-    { x: 400, y: 600, width: 200, height: 20 },
-    { x: 800, y: 700, width: 100, height: 20, velocityY: -2.5 },
-    { x: 400, y: 800, width: 200, height: 20 },
+    { x: 500, y: 100, w: 200, h: 20 },
+    { x: 300, y: 150, w: 150, h: 20 },
+    { x: 200, y: 250, w: 100, h: 20 },
+    { x: 400, y: 300, w: 200, h: 20 },
+    { x: 400, y: 400, w: 200, h: 20, vX: 2.5 },
+    { x: 400, y: 500, w: 200, h: 20 },
+    { x: 400, y: 600, w: 200, h: 20 },
+    { x: 800, y: 700, w: 100, h: 20, vY: -2.5 },
+    { x: 400, y: 800, w: 200, h: 20 },
   ]
-  const COIN = { x: 200, y: 900, width: 40, height: 40 }
+  const COIN = { x: 200, y: 900, w: 40, h: 40 }
 
   return {
     dude: DUDE,
@@ -83,75 +79,69 @@ function updateDude (dude, { oldPlatforms, platforms }, move) {
 
 function applyDeltaToDude (dude, delta) {
   return assign({}, dude, {
-    x: min(DUDE_MAX_X, dude.x + delta.x),
-    y: min(DUDE_MAX_Y, dude.y + delta.y),
+    x: min(WORLD_WIDTH - dude.w, dude.x + delta.x),
+    y: min(WORLD_HEIGHT - dude.h, dude.y + delta.y),
   })
 }
 
 function updateDudeX (dude, move) {
-  let velocityX = dude.jumpedFromVelocityX
-  if (move[LEFT]) { velocityX -= 5 }
-  if (move[RIGHT]) { velocityX += 5 }
-  const x = min(DUDE_MAX_X, max(0, dude.x + velocityX ))
-  return assign({}, dude, { x, velocityX })
+  let vX = 0
+  if (move[LEFT]) { vX -= 5 }
+  if (move[RIGHT]) { vX += 5 }
+  const x = min(WORLD_WIDTH - dude.w, max(0, dude.x + vX ))
+  return assign({}, dude, { x, vX })
 }
 
 function updateDudeY (dude, platforms, move) {
-  let { y, jumpedFromVelocityX, velocityY, gravity } = dude
+  let { y, vY, g } = dude
   const platform = getPlatformBelow(dude, platforms)
   const standing = isStanding(dude, platform)
 
-  if (standing) { jumpedFromVelocityX = 0 }
-  if (standing && move[UP]) {
-    velocityY = 10
-    if (platform) {
-      velocityY += platform.velocityY || 0
-      jumpedFromVelocityX = platform.velocityX || 0
-    }
-  }
-  const minY = (platform && !move[DOWN]) ? platform.y + platform.height : 0
-  y = min(DUDE_MAX_Y, max(minY, y + velocityY))
-  velocityY = y === minY ? 0 : velocityY - gravity // set velocityY to 0 when standing
-  if (y === DUDE_MAX_Y && velocityY > 0) { velocityY = 0 } // when we bump against the ceiling
-  return assign({}, dude, { y, velocityY, jumpedFromVelocityX })
+  if (standing && move[UP]) { vY = 10 }
+  const maxY = WORLD_HEIGHT - dude.h
+  const minY = (platform && !move[DOWN]) ? platform.y + platform.h : 0
+  y = min(maxY, max(minY, y + vY))
+  vY = y === minY ? 0 : vY - g // set vY to 0 when standing
+  if (y === maxY && vY > 0) { vY = 0 } // when we bump against the ceiling
+  return assign({}, dude, { y, vY })
 }
 
 function updatePlatform (platform) {
-  let { x, y, velocityX, velocityY, width, height } = platform
-  if (velocityX) {
-    const maxX = WORLD_WIDTH - width
-    x = min(maxX, max(0, x + velocityX))
-    if ((velocityX > 0 && x == maxX) || (velocityX < 0 && x == 0)) {
-      velocityX = -velocityX
+  let { x, y, vX, vY, w, h } = platform
+  if (vX) {
+    const maxX = WORLD_WIDTH - w
+    x = min(maxX, max(0, x + vX))
+    if ((vX > 0 && x == maxX) || (vX < 0 && x == 0)) {
+      vX = -vX
     }
   }
-  if (velocityY) {
-    const maxY = WORLD_HEIGHT - height
-    y = min(maxY, max(0, y + velocityY))
-    if ((velocityY > 0 && y == maxY) || (velocityY < 0 && y == 0)) {
-      velocityY = -velocityY
+  if (vY) {
+    const maxY = WORLD_HEIGHT - h
+    y = min(maxY, max(0, y + vY))
+    if ((vY > 0 && y == maxY) || (vY < 0 && y == 0)) {
+      vY = -vY
     }
   }
-  return assign({}, platform, { x, y, velocityX, velocityY })
+  return assign({}, platform, { x, y, vX, vY })
 }
 
 function isStanding (dude, platformBelow) {
-  if (dude.velocityY > 0) { return false }
+  if (dude.vY > 0) { return false }
   if (dude.y === 0 ) { return true }
-  return platformBelow && dude.y === platformBelow.y + platformBelow.height
+  return platformBelow && dude.y === platformBelow.y + platformBelow.h
 }
 
 function isStandingOrSuperCloseToPlatform (dude, platformBelow) {
-  if (!platformBelow || dude.velocityY > 0) { return false }
-  const surfaceY = platformBelow.y + platformBelow.height
-  return dude.y === surfaceY || dude.y - surfaceY < platformBelow.velocityY
+  if (!platformBelow || dude.vY > 0) { return false }
+  const surfaceY = platformBelow.y + platformBelow.h
+  return dude.y === surfaceY || dude.y - surfaceY < platformBelow.vY
 }
 
 function getPlatformBelow (dude, platforms) {
   return platforms
     .filter(platform =>
-      dude.y >= platform.y + platform.height &&
-      dude.x + DUDE_WIDTH >= platform.x && dude.x <= platform.x + platform.width
+      dude.y >= platform.y + platform.h &&
+      dude.x + dude.w >= platform.x && dude.x <= platform.x + platform.w
     )
     .reduce((closest, platform) => {
       if (!closest) { return platform }
@@ -159,8 +149,8 @@ function getPlatformBelow (dude, platforms) {
     }, null)
 }
 
-function dudeOverCoin (dude, coin) {
-  return dude.x <= coin.x + coin.width && dude.x + DUDE_WIDTH >= coin.x &&
-         dude.y <= coin.y + coin.height && dude.y + DUDE_HEIGHT >= coin.y
+function thingsIntersect (a, b) {
+  return a.x <= b.x + b.w && a.x + a.w >= b.x &&
+         a.y <= b.y + b.h && a.y + a.h >= b.y
 }
 
