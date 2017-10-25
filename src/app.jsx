@@ -27,7 +27,7 @@ function playgroundLens() {
   function mergeMoves({ keyboard = '0000', touch = '0000' }) {
     if (keyboard === '0000') { return touch }
     if (touch === '0000') { return keyboard }
-    return (parseInt(keyboard, 2) | parseInt(touch, 2) + 16).toString(2).substr(1)
+    return [0, 1, 2, 3].map(i => keyboard[i] === touch[i] === '0' ? '0' : '1').join('')
   }
 }
 
