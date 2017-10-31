@@ -1,7 +1,7 @@
 import dropRepeats from 'xstream/extra/dropRepeats'
 import xs from 'xstream'
 
-export function intent ({ onion, Time, Canvas, Client }) {
+export function intent ({ onion, Time, Canvas, DOM, Client }) {
   return {
     move$: onion.state$
       .map(state => state.move)
@@ -9,6 +9,8 @@ export function intent ({ onion, Time, Canvas, Client }) {
       .compose(dropRepeats())
       .map(move => Time.periodic(20).mapTo(move).startWith(move))
       .flatten(),
-    restart$: Canvas.events(Client.touchSupport ? 'touchend' : 'click')
+    restart$: Client.touchSupport ?
+      Canvas.events('touchend') :
+      DOM.select('body').events('keyup').filter(e => e.keyCode === 32)
   }
 }
