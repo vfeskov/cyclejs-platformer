@@ -7,10 +7,7 @@ import {
 } from '../../game'
 
 export function model ({ move$, restart$ }) {
-  const restartReducer$ = restart$
-    .mapTo((prevState = { playground: {} }) =>
-      prevState.playground.finished ? generateLevel() : prevState.playground
-    )
+  const restartReducer$ = restart$.mapTo(() => generateLevel())
 
   const moveReducer$ = move$
     .map(move => move.split('').map(moveInDir => moveInDir === '1'))
