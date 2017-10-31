@@ -13,15 +13,15 @@ export function generateLevel () {
   const platforms = makePlatforms()
   const coin = makeCoin(platforms)
 
-  return { dude, platforms, coin, finished: false }
+  return { dude, platforms, coin, newLevel: true }
 }
 
 function makeDude () {
   return {
-    x: random(0, WORLD_WIDTH - DUDE_WIDTH * SCALE),
+    x: randomInt(0, WORLD_WIDTH - DUDE_WIDTH * SCALE),
     y: 0,
-    w: DUDE_WIDTH * SCALE,
-    h: DUDE_HEIGHT * SCALE,
+    w: floor(DUDE_WIDTH * SCALE),
+    h: floor(DUDE_HEIGHT * SCALE),
     vX: 0,
     vY: 0,
     g: GRAVITY * SCALE
@@ -37,7 +37,7 @@ function makePlatforms (platforms = [], baseLeftX = 0, baseRightX = WORLD_WIDTH,
       moveOffsetY = 0
   if (randomInt(0, 3) === 0) { // every fourth platform is moving
     let v = (randomInt(0, 1) === 0 ? 1 : -1) * randomInt(1, 3) * SCALE,
-        moveOffset = random(100 * SCALE, 200 * SCALE)
+        moveOffset = randomInt(100 * SCALE, 200 * SCALE)
     if (randomInt(0, 1) === 0) { // half of them moves horizontally
       vX = v
       moveOffsetX = moveOffset
@@ -46,9 +46,9 @@ function makePlatforms (platforms = [], baseLeftX = 0, baseRightX = WORLD_WIDTH,
       moveOffsetY = moveOffset
     }
   }
-  let w = random(40, 200) * SCALE, x
+  let w = randomInt(40 * SCALE, 200 * SCALE), x
   if (platforms.length) {
-    let offset = random(0, 120) * SCALE,
+    let offset = randomInt(0, 120 * SCALE),
         leftSideX = baseLeftX - w - offset,
         rightSideX = baseRightX + offset,
         side
@@ -61,14 +61,14 @@ function makePlatforms (platforms = [], baseLeftX = 0, baseRightX = WORLD_WIDTH,
     }
     x = side === 0 ? leftSideX : rightSideX
   } else {
-    x = random(baseLeftX, baseRightX - w)
+    x = randomInt(baseLeftX, baseRightX - w)
   }
   let maxX = min(WORLD_WIDTH - w, x + moveOffsetX),
       minX = max(0, x - moveOffsetX),
-      h = PLATFORM_H * SCALE,
+      h = floor(PLATFORM_H * SCALE),
       maxY = min(WORLD_HEIGHT - h, baseY + 120 * SCALE - h),
       minY = baseY + 70 * SCALE,
-      y = random(minY, maxY)
+      y = randomInt(minY, maxY)
   maxY = min(WORLD_HEIGHT - h, y + moveOffsetY)
   minY = y
 
@@ -81,16 +81,12 @@ function makeCoin(platforms) {
   const top = platforms[platforms.length - 1],
         w = 40 * SCALE,
         h = w,
-        x = random(max(0, top.minX - 120 * SCALE), min(WORLD_WIDTH - w, top.maxX + 120 * SCALE)),
+        x = randomInt(max(0, top.minX - 120 * SCALE), min(WORLD_WIDTH - w, top.maxX + 120 * SCALE)),
         y = top.minY + 40
 
   return { x, y, w, h }
 }
 
-function random(min, max) {
-  return Math.random() * (max - min) + min
-}
-
 function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min
+  return floor(Math.random() * (max - min + 1)) + floor(min)
 }

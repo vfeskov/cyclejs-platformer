@@ -14,11 +14,22 @@ root-container {
   height: 100%;
 }
 
-canvas {
-  background: black;
+.canvas-container {
   display: block;
   height: 100%;
   margin: 0 auto;
+  position: relative;
+}
+
+canvas {
+  height: 100%;
+}
+
+canvas#background {
+  background: black;
+  position: absolute;
+  top: 0;
+  z-index: -1;
 }
 
 #root {
@@ -37,6 +48,11 @@ canvas {
   root-container {
     flex-direction: column;
     align-items: center;
+  }
+
+  .canvas-container {
+    height: auto;
+    width: 100%;
   }
 
   canvas {

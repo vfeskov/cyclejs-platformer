@@ -13,7 +13,8 @@ const main = onionify(App)
 
 const drivers = {
   DOM: makeDOMDriver('#root'),
-  Canvas: makeCanvasDriver('canvas', { width: WORLD_WIDTH, height: WORLD_HEIGHT }),
+  CanvasBackground: makeCanvasDriver('canvas#background', { width: WORLD_WIDTH, height: WORLD_HEIGHT }),
+  Canvas: makeCanvasDriver('canvas#dynamic', { width: WORLD_WIDTH, height: WORLD_HEIGHT }),
   Time: timeDriver,
   Client: clientDriver,
   preventDefault: preventDefaultDriver,

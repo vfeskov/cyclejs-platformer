@@ -6,10 +6,11 @@ export function Playground (sources) {
   const state$ = sources.onion.state$
   const action = intent(sources)
   const reduce$ = model(action)
-  const vcanvas$ = view(state$, sources)
+  const { vcanvas$, vcanvasBackground$ } = view(state$, sources)
 
   const sinks = {
     Canvas: vcanvas$,
+    CanvasBackground: vcanvasBackground$,
     onion: reduce$
   }
 

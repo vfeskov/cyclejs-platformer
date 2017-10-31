@@ -11,6 +11,6 @@ export function intent ({ onion, Time, Canvas, DOM, Client }) {
       .flatten(),
     restart$: Client.touchSupport ?
       Canvas.events('touchend') :
-      DOM.select('body').events('keyup').filter(e => e.keyCode === 32)
+      DOM.select('body').events('keyup').filter(e => e.keyCode === 82) // r
   }
 }
