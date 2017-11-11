@@ -8,34 +8,36 @@ const UP = 0,
 
 export { generateLevel } from './level-generator'
 
-export function updateDude (dude, { oldPlatforms, platforms }, move) {
+export function updatePlatforms (platforms, normalizedDelta) {
+  return platforms.map(platform => {
+    let { x, y, vX, vY, minX, maxX, minY, maxY } = platform
+    if (vX) {
+      x = min(maxX, max(minX, x + vX * normalizedDelta))
+      if ((vX > 0 && x == maxX) || (vX < 0 && x == minX)) {
+        vX = -vX
+      }
+    }
+    if (vY) {
+      y = min(maxY, max(minY, y + vY * normalizedDelta))
+      if ((vY > 0 && y == maxY) || (vY < 0 && y == minY)) {
+        vY = -vY
+      }
+    }
+    return assign({}, platform, { x, y, vX, vY })
+  })
+}
+
+export function updateDude (dude, { oldPlatforms, platforms }, move, normalizedDelta) {
   let delta = { x: 0, y: 0 }
   const platform = getPlatformBelow(dude, oldPlatforms)
-  const standingOrSuperClose = isStandingOrSuperCloseToPlatform(dude, platform)
+  const standingOrSuperClose = isStandingOrSuperCloseToPlatform(dude, platform, normalizedDelta)
   if (standingOrSuperClose) {
     const newPlatform = platforms[oldPlatforms.indexOf(platform)]
     dude = moveDudeWithPlatform(dude, platform, newPlatform)
   }
-  dude = updateDudeY(dude, platforms, move)
-  dude = updateDudeX(dude, move)
+  dude = updateDudeY(dude, platforms, move, normalizedDelta)
+  dude = updateDudeX(dude, move, normalizedDelta)
   return dude
-}
-
-export function updatePlatform (platform) {
-  let { x, y, vX, vY, minX, maxX, minY, maxY } = platform
-  if (vX) {
-    x = min(maxX, max(minX, x + vX))
-    if ((vX > 0 && x == maxX) || (vX < 0 && x == minX)) {
-      vX = -vX
-    }
-  }
-  if (vY) {
-    y = min(maxY, max(minY, y + vY))
-    if ((vY > 0 && y == maxY) || (vY < 0 && y == minY)) {
-      vY = -vY
-    }
-  }
-  return assign({}, platform, { x, y, vX, vY })
 }
 
 export function thingsIntersect (a, b) {
@@ -55,10 +57,10 @@ function getPlatformBelow (dude, platforms) {
     }, null)
 }
 
-function isStandingOrSuperCloseToPlatform (dude, platformBelow) {
+function isStandingOrSuperCloseToPlatform (dude, platformBelow, normalizedDelta) {
   if (!platformBelow || dude.vY > 0) { return false }
   const surfaceY = platformBelow.y + platformBelow.h
-  return dude.y === surfaceY || dude.y - surfaceY < platformBelow.vY
+  return dude.y === surfaceY || dude.y - surfaceY < platformBelow.vY * normalizedDelta
 }
 
 function moveDudeWithPlatform (dude, oldPlatform, newPlatform) {
@@ -69,24 +71,24 @@ function moveDudeWithPlatform (dude, oldPlatform, newPlatform) {
   })
 }
 
-function updateDudeY ( dude, platforms, move) {
+function updateDudeY ( dude, platforms, move, normalizedDelta) {
   let { y, vY, g } = dude
   const platform = getPlatformBelow(dude, platforms)
   const standing = isStanding(dude, platform)
 
   if (standing && move[UP]) { vY = dude.baseVY }
   const minY = (platform && !move[DOWN]) ? platform.y + platform.h : 0
-  y = min(dude.maxY, max(minY, y + vY))
-  vY = y === minY ? 0 : vY - g // set vY to 0 when standing
+  y = min(dude.maxY, max(minY, y + vY * normalizedDelta))
+  vY = y === minY ? 0 : vY - g * normalizedDelta // set vY to 0 when standing
   if (y === dude.maxY && vY > 0) { vY = 0 } // when we bump against the ceiling
   return assign({}, dude, { y, vY })
 }
 
-function updateDudeX (dude, move) {
+function updateDudeX (dude, move, normalizedDelta) {
   let vX = 0
   if (move[LEFT]) { vX -= dude.baseVX }
   if (move[RIGHT]) { vX += dude.baseVX }
-  const x = min(dude.maxX, max(0, dude.x + vX ))
+  const x = min(dude.maxX, max(0, dude.x + vX * normalizedDelta ))
   return assign({}, dude, { x, vX })
 }
 

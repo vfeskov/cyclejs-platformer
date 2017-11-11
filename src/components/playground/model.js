@@ -1,18 +1,20 @@
 import xs from 'xstream'
 import {
   generateLevel,
+  updatePlatforms,
   updateDude,
-  updatePlatform,
   thingsIntersect
 } from '../../game'
 const { assign } = Object
 
-export function model ({ move$, restart$ }, { Client }) {
+export function model ({ move$, restart$ }, { Time, Client }) {
   const restartReducer$ = restart$.map(size => () => generateLevel(size, Client.touchSupport))
 
   const moveReducer$ = move$
     .map(move => move.split('').map(moveInDir => moveInDir === '1'))
-    .map(move => {
+    .map(move => Time.animationFrames().map(({ normalizedDelta }) => ({ normalizedDelta, move })))
+    .flatten()
+    .map(({ normalizedDelta, move }) => {
       return (prevState = {}) => {
         if (!prevState.playground) { return }
 
@@ -22,8 +24,8 @@ export function model ({ move$, restart$ }, { Client }) {
         if (finished) { return playground }
 
         const oldPlatforms = platforms
-        platforms = platforms.map(updatePlatform)
-        dude = updateDude(dude, { oldPlatforms, platforms }, move)
+        platforms = updatePlatforms(platforms, normalizedDelta)
+        dude = updateDude(dude, { oldPlatforms, platforms }, move, normalizedDelta)
         finished = thingsIntersect(dude, coin)
 
         return assign({}, playground, { dude, platforms, coin, finished, newLevel: false })

@@ -6,25 +6,33 @@ export function intent ({ DOM, Client }) {
     return xs.empty()
   }
 
+  const controller = DOM.select('svg')
   const events = ['touchstart', 'touchmove', 'touchend']
-    .map(e => DOM.select('svg').events(e))
-  return xs.merge(...events)
-    .map(({ type, currentTarget, targetTouches, view }) =>
-      type === 'touchend' ? '0000' : TOUCH_SECTOR_MOVE_MAP
+    .map(e => controller.events(e))
+  const dimensions$ = xs.combine(Client.viewportSize$, controller.element())
+    .map(([view, controllerEl]) => ({
+      targetRect: controllerEl.getBoundingClientRect(),
+      view
+    }))
+  return xs.combine(dimensions$, xs.merge(...events))
+    .map(([ dimensions, event ]) => {
+      const { view, targetRect } = dimensions
+      const { type, targetTouches } = event
+      if (type === 'touchend') { return '0000' }
+      return TOUCH_SECTOR_MOVE_MAP
         .filter(([start, end], index) => {
           const point = [
             targetTouches[0].clientX,
-            view.innerHeight - targetTouches[0].clientY
+            view.height - targetTouches[0].clientY
           ]
-          const targetRect = currentTarget.getBoundingClientRect();
           const center = [
             targetRect.x + targetRect.width / 2,
-            view.innerHeight - targetRect.y - targetRect.height / 2
+            view.height - targetRect.y - targetRect.height / 2
           ]
           return isInsideSector(point, center, start, end, 40 / 200 * targetRect.width)
         })
         .reduce((match, sector) => sector[2], '0000')
-    )
+    })
     .startWith('0000')
     .map(move => () => move)
 }

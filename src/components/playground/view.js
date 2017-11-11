@@ -3,13 +3,12 @@ import xs from 'xstream'
 import dropRepeats from 'xstream/extra/dropRepeats'
 const { round } = Math
 
-export function view (state$, { Time, DOM, Client }) {
+export function view (state$, { DOM, Client }) {
   const fgVcanvas$ = xs.combine(
     DOM.select('canvas#foreground').element(),
     state$
-      .compose(Time.throttleAnimation)
       .map(state => state.playground)
-      .map(({ world, dude, platforms, finished }) => rect({
+      .map(({ world, dude, platforms, finished, finalText }) => rect({
         children: [
           // moving platforms
           ...platforms.filter(({ vX, vY }) => vX || vY).map(platform =>
@@ -31,14 +30,13 @@ export function view (state$, { Time, DOM, Client }) {
           }),
           // restart text
           finished && text({
-            x: 500,
-            y: 500,
+            x: finalText.x,
+            y: finalText.y,
             textAlign: 'center',
             value: `${Client.touchSupport ? 'Tap' : 'Hit R'} to restart`,
-            font: '76pt Arial',
+            font: `italic bold ${finalText.fontSize}px Arial`,
             draw: [
-              { fill: 'white' },
-              { stroke: 'black' }
+              { fill: 'lime' }
             ]
           })
         ]
@@ -90,12 +88,13 @@ export function view (state$, { Time, DOM, Client }) {
     .map(state => state.playground || {})
     .filter(({ world }) => world)
     .compose(dropRepeats((a, b) => a.world.scale === b.world.scale))
-    .map(({ world }) =>
-      <div className="canvas-container">
+    .map(({ world }) => {
+      const containerStyle = { width: `${world.width}px`, height: `${world.height}px` }
+      return <div className="canvas-container" style={containerStyle}>
         <canvas id="background" width={world.width} height={world.height}></canvas>
         <canvas id="foreground" width={world.width} height={world.height}></canvas>
       </div>
-    )
+    })
 
   return { vcanvas$, vdom$ }
 }

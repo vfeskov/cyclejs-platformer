@@ -1,4 +1,4 @@
-const { min, max, floor } = Math
+const { min, max, floor, round } = Math
 const { assign } = Object
 
 const TOUCH_CONTROLLER_WIDTH = 204
@@ -7,13 +7,13 @@ const TOUCH_CONTROLLER_WIDTH = 204
 const WORLD_WIDTH = 1000,
       WORLD_HEIGHT = 1000,
 
-      GRAVITY = 0.4,
+      GRAVITY = 0.25,
       DUDE_WIDTH = 20,
       DUDE_HEIGHT = 40,
       MIN_JUMP_H = 70,
       MAX_JUMP_H = 120,
-      DUDE_BASE_V_X = 5,
-      DUDE_BASE_V_Y = 10,
+      DUDE_BASE_V_X = 4,
+      DUDE_BASE_V_Y = 8,
 
       MIN_PLATFORM_W = 40,
       MAX_PLATFORM_W = 200,
@@ -22,25 +22,30 @@ const WORLD_WIDTH = 1000,
       MAX_PLATFORM_MOVE_OFFSET = 200,
 
       COIN_W = 40,
-      COIN_H = 40
+      COIN_H = 40,
+
+      FINAL_TEXT_X = 500,
+      FINAL_TEXT_Y = 500,
+      FINAL_TEXT_FONT_SIZE = 76
 
 export function generateLevel (clientSize, touchSupport) {
   const world = makeWorld(clientSize, touchSupport)
   const dude = makeDude(world)
   const platforms = makePlatforms(world)
   const coin = makeCoin(world, platforms)
+  const finalText = makeFinalText(world, touchSupport)
 
-  return { world, dude, platforms, coin, finished: false, newLevel: true }
+  return { world, dude, platforms, coin, finalText, finished: false, newLevel: true }
 }
 
 function makeWorld (clientSize, touchSupport) {
   let width, height
   const touchControllerWidth = touchSupport ? TOUCH_CONTROLLER_WIDTH : 0
   if (clientSize.width > clientSize.height) {
-    width = min(clientSize.height, clientSize.width - touchControllerWidth)
+    width = floor(min(clientSize.height, clientSize.width - touchControllerWidth))
     height = width
   } else {
-    height = min(clientSize.width, clientSize.height - touchControllerWidth)
+    height = floor(min(clientSize.width, clientSize.height - touchControllerWidth))
     width = height
   }
   const scale = width / WORLD_WIDTH
@@ -130,6 +135,14 @@ function makeCoin (world, platforms) {
   return { x, y, w, h }
 }
 
-function randomInt(min, max) {
+function randomInt (min, max) {
   return floor(Math.random() * (max - min + 1)) + floor(min)
+}
+
+function makeFinalText (world) {
+  return {
+    x: round(FINAL_TEXT_X * world.scale),
+    y: round(FINAL_TEXT_Y * world.scale),
+    fontSize: round(FINAL_TEXT_FONT_SIZE * world.scale)
+  }
 }
