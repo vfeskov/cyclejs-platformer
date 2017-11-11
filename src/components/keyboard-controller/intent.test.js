@@ -43,6 +43,6 @@ describe('Intent', () => {
 
     Time.assertEqual(actual$, expected$)
 
-    Time.run(done);
+    Time.run(done)
   })
 })

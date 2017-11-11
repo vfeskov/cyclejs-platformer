@@ -5,15 +5,16 @@ import {
   updatePlatform,
   thingsIntersect
 } from '../../game'
+const { assign } = Object
 
-export function model ({ move$, restart$ }) {
-  const restartReducer$ = restart$.mapTo(() => generateLevel())
+export function model ({ move$, restart$ }, { Client }) {
+  const restartReducer$ = restart$.map(size => () => generateLevel(size, Client.touchSupport))
 
   const moveReducer$ = move$
     .map(move => move.split('').map(moveInDir => moveInDir === '1'))
     .map(move => {
       return (prevState = {}) => {
-        if (!prevState.playground) { return generateLevel() }
+        if (!prevState.playground) { return }
 
         const { playground } = prevState
         let { dude, platforms, coin, finished } = playground
@@ -24,7 +25,8 @@ export function model ({ move$, restart$ }) {
         platforms = platforms.map(updatePlatform)
         dude = updateDude(dude, { oldPlatforms, platforms }, move)
         finished = thingsIntersect(dude, coin)
-        return { dude, platforms, coin, finished }
+
+        return assign({}, playground, { dude, platforms, coin, finished, newLevel: false })
       }
     })
 

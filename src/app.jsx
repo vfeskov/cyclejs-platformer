@@ -1,19 +1,29 @@
 import xs from 'xstream'
 import isolate from '@cycle/isolate';
+
 import { TouchController } from './components/touch-controller'
 import { KeyboardController } from './components/keyboard-controller'
 import { Playground } from './components/playground'
 import { ScrollFixer } from './components/scroll-fixer'
 
 export function App (sources) {
-  const components = [
-    isolate(KeyboardController, 'keyboard')(sources),
-    isolate(TouchController, 'touch')(sources),
-    isolate(ScrollFixer)(sources),
-    isolate(Playground, { onion: playgroundLens() })(sources)
-  ]
+  const keyboardController = isolate(KeyboardController, 'keyboard')(sources)
+  const touchController = isolate(TouchController, 'touch')(sources)
+  const scrollFixer = isolate(ScrollFixer)(sources)
+  const playground = isolate(Playground, { onion: playgroundLens() })(sources)
 
-  const sinks = mergeSinks(components)
+  const sinks = {
+    DOM: xs.combine(playground.DOM, touchController.DOM)
+      .map(([playgroundEl, touchControllerEl]) => {
+        return <div id="wrapper">
+          {playgroundEl}
+          {touchControllerEl}
+        </div>
+      }),
+    onion: xs.merge(keyboardController.onion, touchController.onion, playground.onion),
+    Canvas: playground.Canvas,
+    preventDefault: scrollFixer.preventDefault
+  }
 
   return sinks
 }
@@ -29,9 +39,4 @@ function playgroundLens() {
     if (touch === '0000') { return keyboard }
     return [0, 1, 2, 3].map(i => keyboard[i] === touch[i] === '0' ? '0' : '1').join('')
   }
-}
-
-function mergeSinks(components) {
-  const onion = xs.merge(...components.filter(c => c.onion).map(c => c.onion))
-  return Object.assign({}, ...components, { onion })
 }

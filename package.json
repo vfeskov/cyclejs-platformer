@@ -8,11 +8,11 @@
     "mocha": "^4.0.1"
   },
   "dependencies": {
-    "@cycle/dom": "18.3.0",
-    "@cycle/isolate": "^3.1.0",
+    "@cycle/dom": "^19.3.0",
+    "@cycle/isolate": "^3.2.0",
     "@cycle/run": "3.3.0",
     "@cycle/time": "^0.10.1",
-    "cycle-canvas": "github:vfeskov/cycle-canvas#c20a67f4b9a0b57a6ac927c0b6a3928e145b5503",
+    "cycle-canvas": "github:vfeskov/cycle-canvas#ba560316c0c3a6bcf34e788556a04120eafeab7c",
     "cycle-onionify": "^4.0.0",
     "xstream": "11.0.0"
   },

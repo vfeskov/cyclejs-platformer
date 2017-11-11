@@ -3,7 +3,7 @@ import { adapt } from '@cycle/run/lib/adapt'
 
 export function clientDriver () {
   return {
-    resize$: adapt(
+    viewportSize$: adapt(
       fromEvent(window, 'resize')
         .map(windowSize)
         .startWith(windowSize())

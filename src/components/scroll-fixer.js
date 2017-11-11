@@ -11,8 +11,8 @@ export function ScrollFixer ({ DOM, Client }) {
 }
 
 function touchEvents(DOM) {
-  const container = DOM.select('root-container')
+  const body = DOM.select('body')
   const events = ['touchstart', 'touchmove', 'touchend']
-    .map(e => container.events(e))
+    .map(e => body.events(e))
   return xs.merge(...events)
 }
